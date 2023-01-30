@@ -66,7 +66,8 @@ explore_subcl = function( sce, inlist, adtcls ) {
     ),
    mainPanel(
     tabsetPanel(
-     tabPanel("tsne", helpText("Guide to ADT-based clusters"), plotOutput("tsne")),
+     tabPanel("tsne", helpText("Guide to ADT-based clusters"), plotOutput("tsne"),
+         helpText("Cluster sizes"), verbatimTextOutput("sizes")),
      tabPanel("heatmap", helpText("Guide to protein abundance profiles"), plotOutput("heatmap")),
      tabPanel("boxplots", plotOutput("boxplots")),
      tabPanel("smooths", plotOutput("smooths")),
@@ -97,6 +98,7 @@ abundance for selected genes and a given protein in the ADT panel."))
    avg = assay(se.avg)
    pheatmap::pheatmap(avg - rowMeans(avg), breaks=seq(-3, 3, length.out=101))
    })
+  output$sizes = renderPrint({table(altExp(sce)$label)})
   featdata = reactive({
      get_subclustering_features(inlist, input$clpick, n=10) 
      })
