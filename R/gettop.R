@@ -33,6 +33,87 @@ get_subclustering_features = function(inlist, clname, n=20) {
   tt = topTable(lm1, p, n=n)
   list(feat=rowData(inlist[[clname]][rownames(tt),]), stats=tt)
 }
+
+#' app to explore diversity in RNA-subclusters within ADT clusters
+#' @param sce a SingleCellExperiment with altExp with ADT quantification
+#' @param inlist list of SingleCellExperiments (SCEs) formed by scran::quickSubCluster
+#' @param adtcls vector of ADT cluster assignments
+#' @note TSNE should already be available in `altExp(sce)`; follow OSCA book 12.5.2
+#' @examples
+#' if (interactive()) {
+#'  data(sce)
+#'  data(all.sce)
+#'  data(clusters.adt)
+#'  explore_subcl( sce, all.sce, clusters.adt )
+#' }
+#' @export
+explore_subcl = function( sce, inlist, adtcls ) {
+ ui = fluidPage(
+  sidebarLayout(
+   sidebarPanel(
+    helpText("Explore CITE-seq subclusters"),
+    selectInput("clpick", "ADT cluster", choices=names(inlist), selected="3"),
+    selectInput("baseADT", "Base for smooths", choices=rowData(altExp(sce))$ID, selected="CD127",
+       multiple=FALSE),
+    uiOutput("feats"), width=2
+    ),
+   mainPanel(
+    tabsetPanel(
+     tabPanel("tsne", helpText("Guide to ADT-based clusters"), plotOutput("tsne")),
+     tabPanel("heatmap", helpText("Guide to protein abundance profiles"), plotOutput("heatmap")),
+     tabPanel("boxplots", plotOutput("boxplots")),
+     tabPanel("smooths", plotOutput("smooths")),
+     tabPanel("stats", dataTableOutput("stats")),
+     tabPanel("about", helpText("This app helps to explore RNA-based subclusters of ADT-based clusters
+ formed according to ch 12.6.1 of the OSCA book.  Inputs are a basic SingleCellExperiment with
+logcounts for RNA and ADT features, a list of SCE formed using scran::quickSubCluster, and
+the vector of assignments from cells to ADT subclusters.  The TSNE map of ADT clusters is
+given, along with a heatmap for ADT abundances, as guides.  Choose an ADT-based cluster from the
+TSNE map and F tests will be performed (using limma) to identify genes whose mean abundances vary strongly
+across RNA-based subclusters."))
+     )
+    )
+   )
+  )
+ server = function(input, output, session) {
+  output$tsne = renderPlot({
+   plotTSNE(altExp(sce), colour_by="label", text_by = "label", text_color="red")
+   })
+  output$heatmap = renderPlot({
+   se.avg = sumCountsAcrossCells(altExp(sce), adtcls, exprs_values = "logcounts", average=TRUE)
+   avg = assay(se.avg)
+   pheatmap::pheatmap(avg - rowMeans(avg), breaks=seq(-3, 3, length.out=101))
+   })
+  featdata = reactive({
+     get_subclustering_features(inlist, input$clpick, n=10) 
+     })
+  output$feats = renderUI({
+    scl = featdata()$feat
+    checkboxGroupInput("genes", "genes", choices=scl$Symbol, selected=scl$Symbol[1:3])
+    })
+  output$stats = renderDataTable({
+    tab = featdata()$stats
+    cl = which(sapply(tab, is.numeric))
+    for (j in cl) tab[[j]] = round(tab[[j]], 4)
+    tab
+    })
+  output$boxplots = renderPlot({
+    featdata()$feat
+    plotExpression(inlist[[input$clpick]], x="subcluster", features=input$genes,
+         swap_rownames = "Symbol", ncol=length(input$genes))
+    })
+  output$smooths = renderPlot({
+    featdata()$feat
+    plotExpression(inlist[[input$clpick]], x=input$baseADT, features=input$genes,
+         show_smooth=TRUE, show_se=FALSE,
+         swap_rownames = "Symbol", ncol=length(input$genes))
+    })
+ }
+ runApp(list(ui=ui, server=server))
+}
+   
+
+
 #zz = lmFit(assay(all.sce[["3"]], "logcounts"), model.matrix(~subcluster, data=as.data.frame(colData(all.sce[["3"]]))#, data=all.sce[[3]])
 #)
 #library(citeseqApp)

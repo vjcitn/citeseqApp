@@ -1,7 +1,7 @@
 Package: citeseqApp
 Date: 2022-10-01
 Title: citeseqApp
-Version: 0.0.0
+Version: 0.0.1
 Authors@R: 
     c(person(
         "Vincent", "Carey", role = c("aut", "cre"),
@@ -17,4 +17,4 @@ Depends: R (>= 4.2), dplyr, shiny, SingleCellExperiment, scater,
 Suggests: knitr, testthat
 VignetteBuilder: knitr
 biocViews: Infrastructure
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
