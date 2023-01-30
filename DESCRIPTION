@@ -1,0 +1,20 @@
+Package: citeseqApp
+Date: 2022-10-01
+Title: citeseqApp
+Version: 0.0.0
+Authors@R: 
+    c(person(
+        "Vincent", "Carey", role = c("aut", "cre"),
+        email = "stvjc@channing.harvard.edu",
+        comment = c(ORCID = "0000-0003-4046-0063")
+     )
+    )
+Description: Explore a specific PBMC CITE-seq dataset as analyzed in ch12 of OSCA book
+License: MIT
+Encoding: UTF-8
+Depends: R (>= 4.2), dplyr, shiny, SingleCellExperiment, scater,
+	bluster, limma
+Suggests: knitr, testthat
+VignetteBuilder: knitr
+biocViews: Infrastructure
+RoxygenNote: 7.2.1
