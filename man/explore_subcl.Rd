@@ -17,7 +17,8 @@ explore_subcl(sce, inlist, adtcls)
 app to explore diversity in RNA-subclusters within ADT clusters
 }
 \note{
-TSNE should already be available in `altExp(sce)`; follow OSCA book 12.5.2
+TSNE should already be available in `altExp(sce)`; follow OSCA book 12.5.2.  If using
+example, set `ask=FALSE`.
 }
 \examples{
 if (interactive()) {

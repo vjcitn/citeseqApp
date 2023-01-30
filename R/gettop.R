@@ -19,6 +19,8 @@ get_subcl_LM = function(inlist, clname) {
 #' @param inlist list of SingleCellExperiments (SCEs) formed by scran::quickSubCluster
 #' @param clname character(1) name of cluster SCE to assess
 #' @param n numeric(1) number to preserve
+#' @return list with two elements, feat = rowData corresponding to variable genes, stats = topTable result
+#' @note Symbol will be taken from feat and placed in stats component if available
 #' @examples
 #' data(all.sce)
 #' scl = get_subclustering_features(all.sce, "3", 10)
@@ -31,6 +33,10 @@ get_subclustering_features = function(inlist, clname, n=20) {
     lm1 = eBayes(lm1) # lots of zeroes
   })
   tt = topTable(lm1, p, n=n)
+  en = rownames(tt)
+  rd = rowData(inlist[[1]][en,])
+  tt$gene = en
+  if ("Symbol" %in% colnames(rd)) tt = data.frame(gene=rd$Symbol, tt)
   list(feat=rowData(inlist[[clname]][rownames(tt),]), stats=tt)
 }
 

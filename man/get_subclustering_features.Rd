@@ -13,8 +13,14 @@ get_subclustering_features(inlist, clname, n = 20)
 
 \item{n}{numeric(1) number to preserve}
 }
+\value{
+list with two elements, feat = rowData corresponding to variable genes, stats = topTable result
+}
 \description{
 get lmFit F-stat based collection of n genes most varying in mean across subclusters
+}
+\note{
+Symbol will be taken from feat and placed in stats component if available
 }
 \examples{
 data(all.sce)
